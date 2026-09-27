@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prometric SCFHS Medical Calculation Suite & Master 100 Exam Engine</title>
+    <!-- MathJax for rendering LaTeX formulas -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --primary: #004d40;
+            --primary-light: #00796b;
+            --accent: #d32f2f;
+            --bg-dark: #121212;
+            --surface: #1e1e1e;
+            --surface-card: #2d2d2d;
+            --text-main: #e0e0e0;
+            --text-muted: #b0bec5;
+            --success: #2e7d32;
+            --border: #424242;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 4px solid var(--primary-light);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: var(--surface-card);
+            color: var(--text-muted);
+            border: none;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active, .tab-btn:hover {
+            background: var(--primary-light);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            background: var(--surface);
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Calculator Styles */
+        .calc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .calc-card {
+            background: var(--surface-card);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 5px solid var(--primary-light);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background: #333;
+            color: white;
+            box-sizing: border-box;
+        }
+
+        button.btn-action {
+            background: var(--primary-light);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button.btn-action:hover {
+            background: #004d40;
+        }
+
+        .calc-result {
+            margin-top: 15px;
+            padding: 12px;
+            background: #111;
+            border-radius: 4px;
+            border-left: 4px solid var(--success);
+            font-weight: bold;
+        }
+
+        /* Exam Engine Styles */
+        .exam-registration {
+            max-width: 500px;
+            margin: 40px auto;
+            background: var(--surface-card);
+            padding: 30px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .question-card {
+            background: var(--surface-card);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-light);
+        }
+
+        .options-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .options-list li {
+            margin-bottom: 10px;
+        }
+
+        .options-list label {
+            display: flex;
+            align-items: center;
+            background: #333;
+            padding: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: var(--text-main);
+        }
+
+        .options-list label:hover {
+            background: #444;
+        }
+
+        .options-list input[type="radio"] {
+            width: auto;
+            margin-right: 15px;
+        }
+
+        /* Operator Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--surface-card);
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 85vh;
+            overflow-y: auto;
+            border: 1px solid var(--primary-light);
+        }
+
+        .rationale-box {
+            background: #1a237e;
+            color: white;
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 4px;
+            font-size: 0.95rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .badge-cat { background: #00695c; color: white; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>PROMETRIC SCFHS ADVANCED DOSAGE & IV CALCULATOR ENGINE</h1>
+    <p>Senior Clinical Pharmacology & ICU Training Platform (Deployment Edition)</p>
+</header>
+
+<div class="container">
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('calculators')">Clinical Calculators</button>
+        <button class="tab-btn" onclick="switchTab('exam-engine')">100 MCQ Exam Engine</button>
+        <button class="tab-btn" onclick="openOperatorModal()">Operator Portal (Protected)</button>
+    </div>
+
+    <!-- TAB 1: CLINICAL CALCULATORS -->
+    <div id="calculators" class="tab-content active">
+        <h2>Interactive Clinical Formula Suite</h2>
+        <div class="calc-grid">
+            
+            <!-- Calc 1 -->
+            <div class="calc-card">
+                <h3>1. Parenteral Dosage ($D/H \times V$)</h3>
+                <div class="form-group">
+                    <label>Desired Dose (D):</label>
+                    <input type="number" id="c1_d" placeholder="e.g. 750">
+                </div>
+                <div class="form-group">
+                    <label>Have / Available Dose (H):</label>
+                    <input type="number" id="c1_h" placeholder="e.g. 1000">
+                </div>
+                <div class="form-group">
+                    <label>Vehicle Volume (V in mL):</label>
+                    <input type="number" id="c1_v" placeholder="e.g. 5">
+                </div>
+                <button class="btn-action" onclick="calcDose()">Calculate Volume</button>
+                <div class="calc-result" id="c1_res">Result: -</div>
+            </div>
+
+            <!-- Calc 2 -->
+            <div class="calc-card">
+                <h3>2. Manual IV Drop Rate ($\text{gtt/min}$)</h3>
+                <div class="form-group">
+                    <label>Total Volume (mL):</label>
+                    <input type="number" id="c2_vol" placeholder="e.g. 1500">
+                </div>
+                <div class="form-group">
+                    <label>Time (Hours):</label>
+                    <input type="number" id="c2_time" placeholder="e.g. 10">
+                </div>
+                <div class="form-group">
+                    <label>Drop Factor (gtt/mL):</label>
+                    <input type="number" id="c2_df" placeholder="e.g. 20 (Microdrip = 60)">
+                </div>
+                <button class="btn-action" onclick="calcIVRate()">Calculate Drop Rate</button>
+                <div class="calc-result" id="c2_res">Result: -</div>
+            </div>
+
+            <!-- Calc 3 -->
+            <div class="calc-card">
+                <h3>3. Critical Care Titration ($\mu\text{g/kg/min}$)</h3>
+                <div class="form-group">
+                    <label>Ordered Dose ($\mu\text{g/kg/min}$):</label>
+                    <input type="number" id="c3_dose" placeholder="e.g. 5">
+                </div>
+                <div class="form-group">
+                    <label>Patient Weight (kg):</label>
+                    <input type="number" id="c3_wt" placeholder="e.g. 70">
+                </div>
+                <div class="form-group">
+                    <label>Drug Amount (mg in Bag):</label>
+                    <input type="number" id="c3_mg" placeholder="e.g. 400">
+                </div>
+                <div class="form-group">
+                    <label>Bag Volume (mL):</label>
+                    <input type="number" id="c3_vol" placeholder="e.g. 250">
+                </div>
+                <button class="btn-action" onclick="calcTitration()">Calculate Pump Rate (mL/hr)</button>
+                <div class="calc-result" id="c3_res">Result: -</div>
+            </div>
+
+            <!-- Calc 4 -->
+            <div class="calc-card">
+                <h3>4. Parkland Burn Fluid Formula</h3>
+                <div class="form-group">
+                    <label>Patient Weight (kg):</label>
+                    <input type="number" id="c4_wt" placeholder="e.g. 70">
+                </div>
+                <div class="form-group">
+                    <label>Total Burn Surface Area (%TBSA):</label>
+                    <input type="number" id="c4_tbsa" placeholder="e.g. 45">
+                </div>
+                <button class="btn-action" onclick="calcParkland()">Calculate Fluid Resuscitation</button>
+                <div class="calc-result" id="c4_res">Result: -</div>
+            </div>
+
+            <!-- Calc 5 -->
+            <div class="calc-card">
+                <h3>5. Ventilator Weaning Index (RSBI)</h3>
+                <div class="form-group">
+                    <label>Respiratory Rate ($f$ in breaths/min):</label>
+                    <input type="number" id="c5_f" placeholder="e.g. 32">
+                </div>
+                <div class="form-group">
+                    <label>Tidal Volume ($V_T$ in mL):</label>
+                    <input type="number" id="c5_vt" placeholder="e.g. 250">
+                </div>
+                <button class="btn-action" onclick="calcRSBI()">Calculate RSBI</button>
+                <div class="calc-result" id="c5_res">Result: -</div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- TAB 2: EXAM ENGINE -->
+    <div id="exam-engine" class="tab-content">
+        <div id="exam-reg-screen" class="exam-registration">
+            <h3>Test Taker Registration</h3>
+            <div class="form-group">
+                <label>Full Name:</label>
+                <input type="text" id="candidate_name" placeholder="Enter your full name">
+            </div>
+            <div class="form-group">
+                <label>ID / Phone Number:</label>
+                <input type="text" id="candidate_id" placeholder="e.g. +628123456789">
+            </div>
+            <button class="btn-action" onclick="startExam()">Start 100-Question Exam</button>
+        </div>
+
+        <div id="exam-active-screen" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; background:#222; padding:15px; border-radius:6px;">
+                <div><strong>Candidate:</strong> <span id="disp_candidate_name"></span> (<span id="disp_candidate_id"></span>)</div>
+                <button class="btn-action" style="width:auto; margin:0; background:var(--accent);" onclick="submitExam()">Submit Final Exam</button>
+            </div>
+            
+            <div id="questions-container"></div>
+        </div>
+    </div>
+</div>
+
+<!-- OPERATOR MODAL PORTAL -->
+<div id="operatorModal" class="modal">
+    <div class="modal-content">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h2>Operator & Instructor Management Portal</h2>
+            <button onclick="closeOperatorModal()" style="background:var(--accent); color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer;">Close</button>
+        </div>
+
+        <div id="operator-auth">
+            <div class="form-group">
+                <label>Enter Operator Password:</label>
+                <input type="password" id="op_pass" placeholder="Password required">
+            </div>
+            <button class="btn-action" onclick="unlockOperatorPortal()">Access Portal</button>
+        </div>
+
+        <div id="operator-dashboard" style="display:none;">
+            <h3>Exam Submission History & Answer Key Rationales</h3>
+            <div id="candidate-submission-summary" style="background:#111; padding:15px; border-radius:4px; margin-bottom:20px;">
+                <em>No exam submitted in this session yet.</em>
+            </div>
+            
+            <hr style="border-color:var(--border); margin:20px 0;">
+            <h3>Master Item Rationales (100 Test Items)</h3>
+            <div id="master-rationales-container"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+// TAB NAVIGATION
+function switchTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    event.target.classList.add('active');
+}
+
+// CALCULATOR LOGIC
+function calcDose() {
+    let d = parseFloat(document.getElementById('c1_d').value);
+    let h = parseFloat(document.getElementById('c1_h').value);
+    let v = parseFloat(document.getElementById('c1_v').value);
+    if(d && h && v) {
+        let res = (d / h) * v;
+        document.getElementById('c1_res').innerHTML = `Administer: <strong>${res.toFixed(2)} mL</strong>`;
+    }
+}
+
+function calcIVRate() {
+    let vol = parseFloat(document.getElementById('c2_vol').value);
+    let time = parseFloat(document.getElementById('c2_time').value);
+    let df = parseFloat(document.getElementById('c2_df').value);
+    if(vol && time && df) {
+        let mins = time * 60;
+        let gtt = (vol * df) / mins;
+        document.getElementById('c2_res').innerHTML = `Flow Rate: <strong>${Math.round(gtt)} gtt/min</strong>`;
+    }
+}
+
+function calcTitration() {
+    let dose = parseFloat(document.getElementById('c3_dose').value);
+    let wt = parseFloat(document.getElementById('c3_wt').value);
+    let mg = parseFloat(document.getElementById('c3_mg').value);
+    let vol = parseFloat(document.getElementById('c3_vol').value);
+    if(dose && wt && mg && vol) {
+        let conc = (mg * 1000) / vol; // mcg/mL
+        let totalDoseHr = dose * wt * 60; // mcg/hr
+        let rate = totalDoseHr / conc;
+        document.getElementById('c3_res').innerHTML = `Pump Rate: <strong>${rate.toFixed(2)} mL/hr</strong>`;
+    }
+}
+
+function calcParkland() {
+    let wt = parseFloat(document.getElementById('c4_wt').value);
+    let tbsa = parseFloat(document.getElementById('c4_tbsa').value);
+    if(wt && tbsa) {
+        let total24 = 4 * wt * tbsa;
+        let first8 = total24 / 2;
+        let rateFirst8 = first8 / 8;
+        document.getElementById('c4_res').innerHTML = `Total 24h: <strong>${total24} mL</strong><br>First 8h Rate: <strong>${rateFirst8.toFixed(1)} mL/hr</strong> (${first8} mL total)`;
+    }
+}
+
+function calcRSBI() {
+    let f = parseFloat(document.getElementById('c5_f').value);
+    let vt = parseFloat(document.getElementById('c5_vt').value);
+    if(f && vt) {
+        let vtL = vt / 1000;
+        let rsbi = f / vtL;
+        let status = rsbi < 105 ? "<span style='color:#4caf50'>READY for Weaning</span>" : "<span style='color:#f44336'>NOT READY (High Risk)</span>";
+        document.getElementById('c5_res').innerHTML = `RSBI: <strong>${Math.round(rsbi)} breaths/min/L</strong><br>Status: ${status}`;
+    }
+}
+
+// 100 MCQ QUESTION BANK GENERATOR ENGINE
+const questionBank = [];
+
+function generate100Questions() {
+    let idCounter = 1;
+    
+    // CAT 1: Parenteral Dosage (1-20)
+    for(let i=1; i<=20; i++) {
+        let wt = 50 + (i * 2);
+        let doseMg = 250 + (i * 25);
+        let haveMg = 500;
+        let vol = 5;
+        let correctVal = ((doseMg / haveMg) * vol).toFixed(2);
+        
+        questionBank.push({
+            id: idCounter++,
+            cat: "Parenteral Dosage ($D/H \\times V$)",
+            text: `[Item ${i}/100] A patient weighing ${wt} kg is ordered intravenous antibiotic therapy at ${doseMg} mg IV every 8 hours. The vial available contains ${haveMg} mg reconstituted in ${vol} mL sterile water. How many mL should the nurse administer per single dose?`,
+            options: [
+                `${correctVal} mL`,
+                `${(parseFloat(correctVal) * 1.5).toFixed(2)} mL`,
+                `${(parseFloat(correctVal) * 0.5).toFixed(2)} mL`,
+                `${(parseFloat(correctVal) + 1.2).toFixed(2)} mL`
+            ],
+            correct: 0,
+            rationale: `Formula: $Volume = (Desire / Have) \\times Vehicle$. Calculated as: $(${doseMg} / ${haveMg}) \\times ${vol} = ${correctVal}\\text{ mL}$.`
+        });
+    }
+
+    // CAT 2: IV Flow Rates (21-40)
+    for(let i=1; i<=20; i++) {
+        let vol = 500 + (i * 50);
+        let hrs = 6 + (i % 4);
+        let df = (i % 2 === 0) ? 20 : 15;
+        let correctVal = Math.round((vol * df) / (hrs * 60));
+
+        questionBank.push({
+            id: idCounter++,
+            cat: "IV Flow Rate (Manual)",
+            text: `[Item ${idCounter-1}/100] A physician orders ${vol} mL of 0.9% Normal Saline to infuse over ${hrs} hours. The IV drop factor is ${df} gtt/mL. What is the correct manual flow rate in drops per minute (gtt/min)?`,
+            options: [
+                `${correctVal - 5} gtt/min`,
+                `${correctVal} gtt/min`,
+                `${correctVal + 8} gtt/min`,
+                `${correctVal + 15} gtt/min`
+            ],
+            correct: 1,
+            rationale: `Formula: $\\text{gtt/min} = (\\text{Volume} \\times \\text{Drop Factor}) / \\text{Time in Minutes}$. Calculated as: $(${vol} \\times ${df}) / (${hrs} \\times 60) = ${correctVal}\\text{ gtt/min}$.`
+        });
+    }
+
+    // CAT 3: ICU Titration (41-60)
+    for(let i=1; i<=20; i++) {
+        let wt = 60 + i;
+        let doseMcg = 4 + (i * 0.5);
+        let mg = 400;
+        let vol = 250;
+        let conc = (mg * 1000) / vol; // 1600 mcg/mL
+        let totalMcgHr = doseMcg * wt * 60;
+        let correctVal = (totalMcgHr / conc).toFixed(1);
+
+        questionBank.push({
+            id: idCounter++,
+            cat: "Critical Care Titration",
+            text: `[Item ${idCounter-1}/100] An ICU patient (${wt} kg) in cardiogenic shock is prescribed Dopamine continuous infusion at ${doseMcg} mcg/kg/min. Concentration supplied is ${mg} mg in ${vol} mL D5W. Calculate the infusion pump setting in mL/hr.`,
+            options: [
+                `${(parseFloat(correctVal) - 4.5).toFixed(1)} mL/hr`,
+                `${(parseFloat(correctVal) + 3.2).toFixed(1)} mL/hr`,
+                `${correctVal} mL/hr`,
+                `${(parseFloat(correctVal) * 2).toFixed(1)} mL/hr`
+            ],
+            correct: 2,
+            rationale: `Concentration = $400,000\\mu\\text{g} / 250\\text{mL} = 1,600\\mu\\text{g/mL}$. Total dosage/hr = $${doseMcg} \\times ${wt} \\times 60 = ${totalMcgHr}\\mu\\text{g/hr}$. Pump Rate = $${totalMcgHr} / 1600 = ${correctVal}\\text{ mL/hr}$.`
+        });
+    }
+
+    // CAT 4: Parkland Burn (61-80)
+    for(let i=1; i<=20; i++) {
+        let wt = 55 + (i * 2);
+        let tbsa = 25 + (i * 2);
+        let total24 = 4 * wt * tbsa;
+        let first8 = total24 / 2;
+        let rate = Math.round(first8 / 8);
+
+        questionBank.push({
+            id: idCounter++,
+            cat: "Parkland Burn Formula",
+            text: `[Item ${idCounter-1}/100] A burn victim weighing ${wt} kg presents with ${tbsa}% TBSA deep partial-thickness burns. Using the Parkland formula, calculate the IV fluid rate (mL/hr) required for the FIRST 8 HOURS.`,
+            options: [
+                `${rate} mL/hr`,
+                `${rate * 2} mL/hr`,
+                `${Math.round(rate * 0.5)} mL/hr`,
+                `${rate + 120} mL/hr`
+            ],
+            correct: 0,
+            rationale: `Parkland Formula: $4\\text{ mL} \\times ${wt}\\text{ kg} \\times ${tbsa}\\% = ${total24}\\text{ mL Total 24h}$. First 8 hours volume = $${total24} / 2 = ${first8}\\text{ mL}$. Rate = $${first8} / 8\\text{ hrs} = ${rate}\\text{ mL/hr}$.`
+        });
+    }
+
+    // CAT 5: RSBI Ventilator (81-100)
+    for(let i=1; i<=20; i++) {
+        let f = 20 + i;
+        let vt = 200 + (i * 10);
+        let rsbi = Math.round(f / (vt / 1000));
+        let ready = rsbi < 105 ? "READY" : "NOT READY";
+
+        questionBank.push({
+            id: idCounter++,
+            cat: "Ventilator Weaning (RSBI)",
+            text: `[Item ${idCounter-1}/100] Prior to extubation, a ventilated patient exhibits a spontaneous respiratory rate of ${f} breaths/min and a tidal volume of ${vt} mL. Calculate the RSBI and clinical status.`,
+            options: [
+                `RSBI = ${rsbi + 25}; NOT READY`,
+                `RSBI = ${rsbi}; ${ready}`,
+                `RSBI = ${Math.round(rsbi * 0.5)}; READY`,
+                `RSBI = ${rsbi + 10}; READY`
+            ],
+            correct: 1,
+            rationale: `RSBI = $f / V_T\\text{ (in Liters)}$. $V_T = ${vt}/1000 = ${(vt/1000).toFixed(2)}\\text{ L}$. RSBI = $${f} / ${(vt/1000).toFixed(2)} = ${rsbi}\\text{ breaths/min/L}$. Threshold < 105 indicates weaning readiness.`
+        });
+    }
+}
+
+generate100Questions();
+
+// EXAM ENGINE RENDER & LOGIC
+let userAnswers = {};
+
+function startExam() {
+    let name = document.getElementById('candidate_name').value;
+    let id = document.getElementById('candidate_id').value;
+
+    if(!name || !id) {
+        alert('Please complete test taker registration details.');
+        return;
+    }
+
+    document.getElementById('disp_candidate_name').innerText = name;
+    document.getElementById('disp_candidate_id').innerText = id;
+
+    document.getElementById('exam-reg-screen').style.display = 'none';
+    document.getElementById('exam-active-screen').style.display = 'block';
+
+    renderExamQuestions();
+}
+
+function renderExamQuestions() {
+    let container = document.getElementById('questions-container');
+    container.innerHTML = '';
+
+    questionBank.forEach((q, idx) => {
+        let qDiv = document.createElement('div');
+        qDiv.className = 'question-card';
+        qDiv.innerHTML = `
+            <span class="badge badge-cat">${q.cat}</span>
+            <p><strong>Q${idx + 1}:</strong> ${q.text}</p>
+            <ul class="options-list">
+                ${q.options.map((opt, oIdx) => `
+                    <li>
+                        <label>
+                            <input type="radio" name="q_${q.id}" value="${oIdx}" onchange="recordAnswer(${q.id},${oIdx})">
+                            ${opt}
+                        </label>
+                    </li>
+                `).join('')}
+            </ul>
+        `;
+        container.appendChild(qDiv);
+    });
+
+    if(window.MathJax) {
+        MathJax.typesetPromise();
+    }
+}
+
+function recordAnswer(qId, optionIdx) {
+    userAnswers[qId] = optionIdx;
+}
+
+let lastExamSubmission = null;
+
+function submitExam() {
+    let answeredCount = Object.keys(userAnswers).length;
+    if(answeredCount < 100) {
+        if(!confirm(`You have answered ${answeredCount} of 100 questions. Are you sure you want to submit?`)) {
+            return;
+        }
+    }
+
+    let score = 0;
+    questionBank.forEach(q => {
+        if(userAnswers[q.id] === q.correct) {
+            score++;
+        }
+    });
+
+    let percentage = (score / 100) * 100;
+    
+    lastExamSubmission = {
+        name: document.getElementById('candidate_name').value,
+        id: document.getElementById('candidate_id').value,
+        score: score,
+        percentage: percentage,
+        timestamp: new Date().toLocaleString(),
+        userAnswers: {...userAnswers}
+    };
+
+    alert(`Exam Submitted Successfully!\nScore: ${score}/100 (${percentage}%)\n\nResults transmitted to Operator Portal.`);
+    
+    // Reset Exam Screen
+    document.getElementById('exam-reg-screen').style.display = 'block';
+    document.getElementById('exam-active-screen').style.display = 'none';
+    userAnswers = {};
+}
+
+// OPERATOR PORTAL LOGIC
+function openOperatorModal() {
+    document.getElementById('operatorModal').style.display = 'flex';
+}
+
+function closeOperatorModal() {
+    document.getElementById('operatorModal').style.display = 'none';
+}
+
+function unlockOperatorPortal() {
+    let pass = document.getElementById('op_pass').value;
+    if(pass === "pharmacology_2026") {
+        document.getElementById('operator-auth').style.display = 'none';
+        document.getElementById('operator-dashboard').style.display = 'block';
+        loadOperatorDashboard();
+    } else {
+        alert("Invalid Operator Password!");
+    }
+}
+
+function loadOperatorDashboard() {
+    // 1. Render Last Submission Summary
+    let summaryDiv = document.getElementById('candidate-submission-summary');
+    if(lastExamSubmission) {
+        summaryDiv.innerHTML = `
+            <h4>Latest Test Taker Performance Record</h4>
+            <p><strong>Candidate Name:</strong> ${lastExamSubmission.name}</p>
+            <p><strong>ID / Phone:</strong> ${lastExamSubmission.id}</p>
+            <p><strong>Date/Time:</strong> ${lastExamSubmission.timestamp}</p>
+            <p><strong>Final Score:</strong> <span style="color:#4caf50; font-size:1.2rem; font-weight:bold;">${lastExamSubmission.score} / 100 (${lastExamSubmission.percentage}%)</span></p>
+        `;
+    } else {
+        summaryDiv.innerHTML = `<em>No test submissions recorded in current session.</em>`;
+    }
+
+    // 2. Render 100 Question Rationales
+    let masterContainer = document.getElementById('master-rationales-container');
+    masterContainer.innerHTML = '';
+
+    questionBank.forEach((q, idx) => {
+        let rDiv = document.createElement('div');
+        rDiv.style.background = '#222';
+        rDiv.style.padding = '15px';
+        rDiv.style.marginBottom = '15px';
+        rDiv.style.borderRadius = '6px';
+        rDiv.style.borderLeft = '4px solid #3f51b5';
+
+        rDiv.innerHTML = `
+            <strong>Q${idx + 1} [${q.cat}]:</strong> ${q.text}<br>
+            <strong style="color:#4caf50;">Correct Answer Option: ${q.options[q.correct]}</strong>
+            <div class="rationale-box">
+                <strong>Clinical & Mathematical Rationale:</strong><br>
+                ${q.rationale}
+            </div>
+        `;
+        masterContainer.appendChild(rDiv);
+    });
+
+    if(window.MathJax) {
+        MathJax.typesetPromise();
+    }
+}
+</script>
+
+</body>
+</html>
